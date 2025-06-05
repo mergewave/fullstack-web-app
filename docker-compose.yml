@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./services/backend
+    ports:
+      - "5000:5000"
+    container_name: backend-service
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./services/frontend
+      args:
+        - REACT_APP_API_URL=http://backend-service:5000  # ✅ Build-time var for React
+    ports:
+      - "3000:80"  # ✅ React build served via Nginx (see Dockerfile below)
+    depends_on:
+      - backend
+    container_name: frontend-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
