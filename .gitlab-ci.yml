@@ -1,0 +1,38 @@
+image: docker:24.0.5
+
+services:
+  - name: docker:24.0.5-dind
+    alias: docker
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_TLS_CERTDIR: ""
+  CI_REGISTRY_IMAGE: mahdiye2347/fullstack-react-app
+
+stages:
+  - build
+  - push
+
+before_script:
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+  - echo "using image:$CI_REGISTRY_IMAGE"
+
+build-backend:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/backend:latest ./services/backend
+
+build-frontend:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/frontend:latest ./services/frontend
+
+push-backend:
+  stage: push
+  script:
+    - docker push $CI_REGISTRY_IMAGE/backend:latest
+
+push-frontend:
+  stage: push
+  script:
+    - docker push $CI_REGISTRY_IMAGE/frontend:latest
